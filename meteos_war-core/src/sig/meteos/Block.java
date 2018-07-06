@@ -13,12 +13,14 @@ public class Block {
 	Planet planet;
 	boolean onGround = false;
 	boolean ignited=false;
+	int id=0;
 	
 	public Block(float xpos,float ypos, BlockColor col, Planet planet) {
 		this.xpos = xpos;
 		this.ypos = ypos;
 		this.col = col;
 		this.planet=planet;
+		this.id=Planet.BLOCK_ID++;
 	}
 
 	public void draw(SpriteBatch batch) {
@@ -33,7 +35,7 @@ public class Block {
 	
 	public static Block BlockExists(List<Block> blocklist, float xpos, float ypos, BlockColor col, Block checkblock) {
 		for (Block b : blocklist) {
-			if (b!=checkblock && b.col == col && 
+			if (b!=checkblock && b.col == col && b.col!=BlockColor.IGNITED && 
 					b.xpos == xpos && b.ypos == ypos) {
 				return b;
 			}

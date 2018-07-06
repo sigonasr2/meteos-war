@@ -7,9 +7,11 @@ import java.util.Random;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -25,14 +27,19 @@ public class MeteosWar extends ApplicationAdapter {
 	Camera cam;
 	Calendar lastCheck = Calendar.getInstance();
 	int framesPassed=0;
-	public static Random RANDOM = new Random();
+	public static Random RANDOM = new Random(59);
+	boolean singlePass=false;
+	boolean singleFlag=false;
+	static int targetFPS = 60;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		Planet.debugfont.setColor(Color.RED);
 		LoadImages();
 		cam = new PerspectiveCamera();
 		view = new FitViewport(SCREEN_WIDTH,SCREEN_HEIGHT,cam);
+		Gdx.input.setInputProcessor(new MouseProcessor());
 	}
 	
 	public void resize(int width, int height) {
@@ -42,9 +49,22 @@ public class MeteosWar extends ApplicationAdapter {
 	private void LoadImages() {
 		onebyone = new Texture("1x1.png");
 	}
+	
+	public static void scrollUp() {
+		System.out.println("Target FPS is now: "+(++targetFPS));
+	}
+	
+	public static void scrollDown() {
+		System.out.println("Target FPS is now: "+(--targetFPS));
+	}
 
 	@Override
 	public void render () {
+		try {
+			Thread.sleep(1000/targetFPS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		run();
 		
 		Gdx.gl.glClearColor(0, 0, 0.3f, 1);
@@ -56,8 +76,9 @@ public class MeteosWar extends ApplicationAdapter {
 	}
 
 	private void run() {
-		if (framesPassed%120==0) {
+		if (framesPassed%60==0 && (!singlePass || (singlePass && !singleFlag))) {
 			Planet.GEOLYTE.SpawnRandomBlock();
+			singleFlag=true;
 		}
 		Planet.GEOLYTE.run();
 	}
